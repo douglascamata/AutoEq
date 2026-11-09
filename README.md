@@ -57,11 +57,21 @@ when installing and/or running AutoEq.
 - On Windows you may need to install
 [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017, and 2019](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
 - Open a terminal / command prompt. On Windows, search `cmd` in the start menu.
-- Clone AutoEq and go to its location
+- Clone AutoEq and go to its location. The full history is several gigabytes, mostly old versions of the generated
+results, so a partial clone is recommended. It downloads the full commit history but only the file contents of the
+checked out version (about 550 MB); older file versions are fetched on demand if you ever need them.
 ```shell
-git clone https://github.com/jaakkopasanen/AutoEq.git
+git clone --filter=blob:none https://github.com/jaakkopasanen/AutoEq.git
 cd AutoEq
 ```
+If you only work on the code, crawlers or measurements and don't need the `results` directory, a sparse checkout
+brings the download down to about 50 MB:
+```shell
+git clone --filter=blob:none --sparse https://github.com/jaakkopasanen/AutoEq.git
+cd AutoEq
+git sparse-checkout set --no-cone '/*' '!/results/'
+```
+Run `git sparse-checkout disable` later to get the `results` directory.
 - Trust the project's `mise.toml` and install Python, uv and Node.js
 ```shell
 mise trust
