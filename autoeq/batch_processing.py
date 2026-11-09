@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import hashlib
+import json
 from glob import glob
 import multiprocessing
 import soundfile as sf
@@ -13,11 +15,50 @@ from autoeq.constants import DEFAULT_MAX_GAIN, DEFAULT_TREBLE_F_LOWER, DEFAULT_T
     DEFAULT_BASS_BOOST_FC, DEFAULT_BASS_BOOST_Q, DEFAULT_SMOOTHING_WINDOW_SIZE, \
     DEFAULT_TREBLE_SMOOTHING_WINDOW_SIZE, PEQ_CONFIGS, DEFAULT_TREBLE_BOOST_GAIN, DEFAULT_TREBLE_BOOST_Q, \
     DEFAULT_TREBLE_BOOST_FC, DEFAULT_PREAMP, DEFAULT_SOUND_SIGNATURE_SMOOTHING_WINDOW_SIZE, DEFAULT_MAX_SLOPE, \
-    DEFAULT_TILT
+    DEFAULT_TILT, RESULTS_VERSION, FINGERPRINTS_FILE_NAME
 from autoeq.frequency_response import FrequencyResponse
 
+# batch_processing() arguments which don't affect the produced results and are therefore not part of the fingerprint
+NON_RESULT_ARGS = ['input_file', 'input_dir', 'output_dir', 'new_only', 'skip_unchanged', 'thread_count']
 
-def batch_processing(input_file=None, input_dir=None, output_dir=None, new_only=False, standardize_input=False,
+
+def _file_digest(file_path):
+    with open(file_path, 'rb') as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def _settings_digest(settings):
+    """Digest of processing settings. Files (target, sound signature, PEQ configs) are included by their contents."""
+    settings = dict(settings)
+    for key in ['target', 'sound_signature', 'parametric_eq_config', 'fixed_band_eq_config']:
+        if isinstance(settings[key], (str, os.PathLike)) and os.path.isfile(settings[key]):
+            settings[key] = {'file_sha256': _file_digest(settings[key])}
+    settings['results_version'] = RESULTS_VERSION
+    return hashlib.sha256(json.dumps(settings, sort_keys=True, default=str).encode('utf-8')).hexdigest()
+
+
+def _input_fingerprint(input_file_path, settings_digest):
+    return hashlib.sha256(f'{_file_digest(input_file_path)}:{settings_digest}'.encode('utf-8')).hexdigest()
+
+
+def _read_fingerprints(file_path):
+    if not os.path.isfile(file_path):
+        return {}
+    with open(file_path, 'r', encoding='utf-8') as fh:
+        return json.load(fh)
+
+
+def _write_fingerprints(file_path, fingerprints, output_dir):
+    # Drop entries for results which no longer exist, e.g. after pruning
+    fingerprints = {
+        key: val for key, val in fingerprints.items() if os.path.isdir(os.path.join(output_dir, key))}
+    with open(file_path, 'w', encoding='utf-8') as fh:
+        json.dump(fingerprints, fh, indent=2, sort_keys=True, ensure_ascii=False)
+        fh.write('\n')
+
+
+def batch_processing(input_file=None, input_dir=None, output_dir=None, new_only=False, skip_unchanged=False,
+                     standardize_input=False,
                      target=None, parametric_eq=False, fixed_band_eq=False,
                      ten_band_eq=False, parametric_eq_config=None, fixed_band_eq_config=None, convolution_eq=False,
                      fs=DEFAULT_FS, bit_depth=DEFAULT_BIT_DEPTH, phase=DEFAULT_PHASE, f_res=DEFAULT_F_RES,
@@ -30,7 +71,14 @@ def batch_processing(input_file=None, input_dir=None, output_dir=None, new_only=
                      window_size=DEFAULT_SMOOTHING_WINDOW_SIZE, treble_window_size=DEFAULT_TREBLE_SMOOTHING_WINDOW_SIZE,
                      treble_f_lower=DEFAULT_TREBLE_F_LOWER, treble_f_upper=DEFAULT_TREBLE_F_UPPER,
                      treble_gain_k=DEFAULT_TREBLE_GAIN_K, preamp=DEFAULT_PREAMP, thread_count=0):
-    """Parses files in input directory and produces equalization results in output directory."""
+    """Parses files in input directory and produces equalization results in output directory.
+
+    With skip_unchanged=True, input files whose measurement data, target and settings haven't changed since their
+    results were generated are skipped. This avoids rewriting results which would only differ by numerical noise of
+    the optimizers, e.g. when results are regenerated on a different machine or with different library versions.
+    """
+    # Must be the first statement so that only the function arguments are captured
+    settings = {key: val for key, val in locals().items() if key not in NON_RESULT_ARGS}
     if not target and (parametric_eq or fixed_band_eq or ten_band_eq or convolution_eq):
         raise ValueError('Target must be specified when equalizing.')
 
@@ -93,10 +141,18 @@ def batch_processing(input_file=None, input_dir=None, output_dir=None, new_only=
                     f'If this was meant to be a file, the file does not exist.')
             fixed_band_eq_config = PEQ_CONFIGS[fixed_band_eq_config]
 
+    # Fingerprints are maintained when skipping unchanged results or when the output directory already has them, so
+    # that results regenerated without skip_unchanged don't leave stale fingerprints behind
+    fingerprints_path = os.path.join(output_dir, FINGERPRINTS_FILE_NAME)
+    track_fingerprints = skip_unchanged or os.path.isfile(fingerprints_path)
+    fingerprints = _read_fingerprints(fingerprints_path) if track_fingerprints else {}
+    settings_digest = _settings_digest(settings) if track_fingerprints else None
+
     # Prepare list of arguments for all the function calls to generate results.
     n_total = 0
     file_paths = []
     args_list = []
+    processed_keys = []
     for input_file_path in input_file_paths:
         name = os.path.split(input_file_path)[1].replace('.csv', '')
         relative_path = os.path.relpath(input_file_path, input_dir)
@@ -104,17 +160,27 @@ def batch_processing(input_file=None, input_dir=None, output_dir=None, new_only=
         output_file_dir, output_file_name = os.path.split(output_file_path)
         output_file_dir = os.path.join(output_file_dir, name)
         output_file_path = os.path.join(output_file_dir, output_file_name)
-        if not new_only or not os.path.isdir(output_file_dir) or not len(os.listdir(output_file_dir)):
-            # Not looking for only new ones or the output directory doesn't exist or it's empty
-            file_paths.append((input_file_path, output_file_path))
-            n_total += 1
-            args = (input_file_path, output_file_path, bass_boost_fc, bass_boost_gain, bass_boost_q,
-                    treble_boost_fc, treble_boost_gain, treble_boost_q,
-                    bit_depth, target, convolution_eq, f_res, fixed_band_eq, fs, parametric_eq_config,
-                    fixed_band_eq_config, max_gain, max_slope, window_size, treble_window_size,
-                    parametric_eq, phase, sound_signature, sound_signature_smoothing_window_size,
-                    standardize_input, ten_band_eq, tilt, treble_f_lower, treble_f_upper, treble_gain_k, preamp)
-            args_list.append(args)
+        result_exists = os.path.isdir(output_file_dir) and len(os.listdir(output_file_dir)) > 0
+        fingerprint_key = os.path.relpath(output_file_dir, output_dir).replace(os.sep, '/')
+        if track_fingerprints:
+            fingerprint = _input_fingerprint(input_file_path, settings_digest)
+            if result_exists and fingerprint_key not in fingerprints:
+                # Existing result from before fingerprints were kept, assume it's up to date
+                fingerprints[fingerprint_key] = fingerprint
+        if new_only and result_exists:
+            continue
+        if skip_unchanged and result_exists and fingerprints.get(fingerprint_key) == fingerprint:
+            continue
+        processed_keys.append((fingerprint_key, input_file_path))
+        file_paths.append((input_file_path, output_file_path))
+        n_total += 1
+        args = (input_file_path, output_file_path, bass_boost_fc, bass_boost_gain, bass_boost_q,
+                treble_boost_fc, treble_boost_gain, treble_boost_q,
+                bit_depth, target, convolution_eq, f_res, fixed_band_eq, fs, parametric_eq_config,
+                fixed_band_eq_config, max_gain, max_slope, window_size, treble_window_size,
+                parametric_eq, phase, sound_signature, sound_signature_smoothing_window_size,
+                standardize_input, ten_band_eq, tilt, treble_f_lower, treble_f_upper, treble_gain_k, preamp)
+        args_list.append(args)
 
     if not thread_count:
         thread_count = multiprocessing.cpu_count()
@@ -124,7 +190,15 @@ def batch_processing(input_file=None, input_dir=None, output_dir=None, new_only=
         for result in tqdm(
                 pool.imap_unordered(process_file_wrapper, args_list, chunksize=1), total=len(args_list)):
             results.append(result)
-        return results
+
+    if track_fingerprints:
+        os.makedirs(output_dir, exist_ok=True)
+        # Fingerprints are computed after processing because standardize_input may have rewritten the input files
+        for fingerprint_key, input_file_path in processed_keys:
+            fingerprints[fingerprint_key] = _input_fingerprint(input_file_path, settings_digest)
+        _write_fingerprints(fingerprints_path, fingerprints, output_dir)
+
+    return results
 
 
 def process_file_wrapper(params):

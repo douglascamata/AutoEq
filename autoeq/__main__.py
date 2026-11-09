@@ -25,6 +25,11 @@ def cli_args():
                             help='Overwrite input data in standardized sampling and bias?')
     arg_parser.add_argument('--new-only', action='store_true',
                             help='Only process input files which don\'t have results in output directory.')
+    arg_parser.add_argument('--skip-unchanged', action='store_true',
+                            help='Skip input files whose measurement data, target and settings are unchanged since '
+                                 'their results were last generated. Fingerprints of the inputs are kept in '
+                                 '"fingerprints.json" in the output directory. Existing results without a '
+                                 'fingerprint are assumed to be up to date.')
     arg_parser.add_argument('--target', type=str,
                             help='File path to CSV containing target curve.')
     arg_parser.add_argument('--equalize', action='store_true',

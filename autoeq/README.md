@@ -91,13 +91,19 @@ The full functionality with file input and output can be used with `batch_proces
 from autoeq.batch_processing import batch_processing
 
 batch_processing(
-  input_dir='path/to/measurements', output_dir='path/to/results', new_only=False, standardize_input=False,
+  input_dir='path/to/measurements', output_dir='path/to/results', new_only=False, skip_unchanged=False,
+  standardize_input=False,
   compensation='path/to/target.csv', parametric_eq=True, fixed_band_eq=True,
   ten_band_eq=True, parametric_eq_config='8_PEAKING_WITH_SHELVES', fixed_band_eq_config='10_BAND_GRAPHIC_EQ',
   convolution_eq=True, fs=44100, bit_depth=16, phase='minimum', f_res=10, bass_boost_gain=6,
   bass_boost_fc=105, bass_boost_q=0.7, treble_boost_gain=0, treble_boost_fc=10000, treble_boost_q=0.7, tilt=None,
   sound_signature=None, max_gain=12, thread_count=0)
 ```
+
+`skip_unchanged=True` (`--skip-unchanged` on the command line) only processes input files whose measurement data, target
+or settings changed since their results were generated. The fingerprints of the inputs are kept in `fingerprints.json`
+in the output directory. Results which already exist without a fingerprint are assumed to be up to date. Bump
+`RESULTS_VERSION` in `autoeq/constants.py` when a code change should regenerate all results.
 
 The main functionalities of AutoEq are in `frequency_response` which implements `FrequencyResponse` class. Parametric
 equalizer optimization and frequency response computations are implemented in `peq`.

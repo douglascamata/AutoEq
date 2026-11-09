@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import shutil
@@ -107,3 +108,47 @@ class TestAutoEq(unittest.TestCase):
         self.assertTrue('### Parametric EQs' in s)
         self.assertTrue('### Fixed Band EQs' in s)
         self.assertTrue('### Graphs' in s)
+
+    def _process(self, **kwargs):
+        return batch_processing(
+            input_dir=self._input, output_dir=self._output, target=self._target, thread_count=1,
+            **{'max_gain': DEFAULT_MAX_GAIN, **kwargs})
+
+    def test_skip_unchanged(self):
+        fingerprints_path = self._output.joinpath('fingerprints.json')
+        self.assertEqual(len(self._process(skip_unchanged=True)), 2)
+        with open(fingerprints_path) as fh:
+            self.assertEqual(set(json.load(fh).keys()), {'Headphone 1', 'Headphone 2'})
+        # Nothing changed
+        self.assertEqual(len(self._process(skip_unchanged=True)), 0)
+        # Changed measurement data
+        with open(self._input.joinpath('Headphone 2.csv'), 'a') as fh:
+            fh.write('\n')
+        frs = self._process(skip_unchanged=True)
+        self.assertEqual([fr.name for fr in frs], ['Headphone 2'])
+        self.assertEqual(len(self._process(skip_unchanged=True)), 0)
+        # Changed target
+        with open(self._target, 'a') as fh:
+            fh.write('\n')
+        self.assertEqual(len(self._process(skip_unchanged=True)), 2)
+        # Changed settings
+        self.assertEqual(len(self._process(skip_unchanged=True, max_gain=DEFAULT_MAX_GAIN + 1)), 2)
+        # Processing without skip_unchanged keeps the fingerprints up to date
+        self.assertEqual(len(self._process()), 2)
+        self.assertEqual(len(self._process(skip_unchanged=True)), 0)
+
+    def test_skip_unchanged_adopts_existing_results(self):
+        self.assertEqual(len(self._process()), 2)
+        self.assertFalse(self._output.joinpath('fingerprints.json').exists())
+        # Results generated before fingerprints existed are assumed to be up to date
+        self.assertEqual(len(self._process(skip_unchanged=True)), 0)
+        self.assertTrue(self._output.joinpath('fingerprints.json').exists())
+        # Deleted results get re-created with new_only
+        shutil.rmtree(self._output.joinpath('Headphone 1'))
+        self.assertEqual(len(self._process(skip_unchanged=True, new_only=True)), 1)
+        # Pruned results (measurement and result removed) are removed from fingerprints
+        os.remove(self._input.joinpath('Headphone 1.csv'))
+        shutil.rmtree(self._output.joinpath('Headphone 1'))
+        self.assertEqual(len(self._process(skip_unchanged=True)), 0)
+        with open(self._output.joinpath('fingerprints.json')) as fh:
+            self.assertEqual(set(json.load(fh).keys()), {'Headphone 2'})

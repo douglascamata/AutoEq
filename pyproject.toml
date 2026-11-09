@@ -52,6 +52,9 @@ dbtools = [
 ]
 
 [tool.uv]
+# Resolve direct dependencies to the exact versions named in their `~=` specifiers (e.g. matplotlib 3.7.3, not the
+# newest 3.7.x), so the development environment uses the same versions upstream AutoEq specifies.
+resolution = "lowest-direct"
 # `uv sync` installs every group by default; use `--no-default-groups --group <name>` for a subset
 default-groups = "all"
 # Only lock for the Python versions used for development (see mise.toml). The published package's

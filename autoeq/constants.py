@@ -39,6 +39,11 @@ DEFAULT_PEQ_OPTIMIZER_TARGET_LOSS = None
 DEFAULT_PEQ_OPTIMIZER_MIN_CHANGE_RATE = None
 DEFAULT_PEQ_OPTIMIZER_MIN_STD = 0.002
 
+# Part of the input fingerprint used by batch_processing(skip_unchanged=True). Bump this when a change in the
+# processing code should regenerate all results even though measurements, targets and settings are unchanged.
+RESULTS_VERSION = 1
+FINGERPRINTS_FILE_NAME = 'fingerprints.json'
+
 DEFAULT_FIXED_BAND_FILTER_MIN_GAIN = -12.0
 DEFAULT_FIXED_BAND_FILTER_MAX_GAIN = 12.0
 
