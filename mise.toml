@@ -1,0 +1,44 @@
+[tools]
+python = "3.11"
+uv = "0.13"
+node = "18"
+
+[env]
+# Make uv use the Python interpreter installed by mise instead of downloading its own
+UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }
+
+[settings]
+# Activate the uv-managed .venv automatically when entering the project directory
+python.uv_venv_auto = true
+
+[tasks.install]
+description = "Install all Python dependencies (library, dev, webapp, dbtools) and webapp UI packages"
+run = ["uv sync", "npm ci --prefix webapp/ui"]
+
+[tasks.test]
+description = "Run unit tests"
+run = "uv run python -m unittest discover -s tests -t ."
+
+[tasks.webapp]
+description = "Run webapp backend with auto-reload"
+dir = "webapp"
+run = "uv run uvicorn main:app --reload"
+
+[tasks.ui]
+description = "Run webapp frontend dev server"
+dir = "webapp/ui"
+run = "npm start"
+
+[tasks.dbtools]
+description = "Open the database tools notebook in Jupyter Lab"
+dir = "dbtools"
+run = "uv run jupyter lab db.ipynb"
+
+[tasks.build]
+description = "Build the PyPI package using the library README"
+run = """
+cp README.md README.md.bak
+cp autoeq/README.md README.md
+uv build || { mv README.md.bak README.md; exit 1; }
+mv README.md.bak README.md
+"""

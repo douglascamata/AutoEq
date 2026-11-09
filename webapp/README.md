@@ -2,22 +2,19 @@
 WebApp for AutoEq
 
 ## Development
-Install dependencies
+Install dependencies (from the repository root, see the main README for setting up mise)
 ```shell
-cd webapp
-python -m pip install -U -r requirements.txt
+mise run install
 ```
 
 Run backend
 ```shell
-uvicorn main:app --reload
+mise run webapp
 ```
 
 Run frontend dev server
 ```shell
-cd ui
-npm i
-npm start
+mise run ui
 ```
 
 Go to `http://localhost:3000`

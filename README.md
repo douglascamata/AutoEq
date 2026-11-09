@@ -45,46 +45,34 @@ In addition to the web application, AutoEq can be used from command line (termin
 intended for developers. The following instructions apply for command line and Python interface use.
 
 ### Installing
+AutoEq uses [mise](https://mise.jdx.dev) to manage tool versions (Python, [uv](https://docs.astral.sh/uv/) and Node.js)
+and uv to manage Python dependencies.
+
 - Download and install Git: https://git-scm.com/downloads. When installing Git on Windows, use Windows SSL verification
 instead of Open SSL or you might run into problems when installing project dependencies.
-- Download and install 64-bit **[Python 3](https://www.python.org/getit/)**. Make sure to check *Add Python 3.X to PATH*.
+- Install mise: https://mise.jdx.dev/getting-started.html and
+[activate it in your shell](https://mise.jdx.dev/getting-started.html#activate-mise).
 - You may need to install [libsndfile](http://www.mega-nerd.com/libsndfile/) if you're having problems with `soundfile`
 when installing and/or running AutoEq.
-- On Linux you may need to install Python dev packages
-```shell
-sudo apt install python3-dev python3-pip python3-venv
-```
-- On Linux you may need to install [pip](https://pip.pypa.io/en/stable/installing/)
 - On Windows you may need to install
 [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017, and 2019](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
 - Open a terminal / command prompt. On Windows, search `cmd` in the start menu.
-- Clone AutoEq
+- Clone AutoEq and go to its location
 ```shell
 git clone https://github.com/jaakkopasanen/AutoEq.git
-```
-- Go to AutoEq location
-```shell
 cd AutoEq
 ```
-- Create a python virtual environment
+- Trust the project's `mise.toml` and install Python, uv and Node.js
 ```shell
-python -m venv venv
+mise trust
+mise install
 ```
-- Activate virtualenv
+- Install dependencies. This creates a virtual environment in `.venv` with AutoEq installed in editable mode, plus the
+webapp and database tool dependencies. mise activates `.venv` automatically whenever you `cd` into the project.
 ```shell
-# On Windows
-venv\Scripts\activate.bat
-# On Linux and Mac
-. venv/bin/activate
+mise run install
 ```
-- Update pip
-```shell
-python -m pip install -U pip
-```
-- Install required packages
-```shell
-python -m pip install -U -e .
-```
+If you only need the library and command line tool, `uv sync --no-default-groups` is enough.
 - Verify installation. If everything went well, you'll see the list of command line parameters AutoEq accepts.
 ```shell
 python -m autoeq --help
@@ -94,17 +82,12 @@ python -m autoeq --help
 python -m autoeq --input-file="measurements/oratory1990/data/over-ear/Sennheiser HD 800.csv" --output-dir="my_results" --target="targets/harman_over-ear_2018_wo_bass.csv" --max-gain=24 --parametric-eq --parametric-eq-config=4_PEAKING_WITH_LOW_SHELF,4_PEAKING_WITH_HIGH_SHELF --bass-boost=6 --convolution-eq --fs=48000 --bit-depth=32 --f-res=16
 ```
 
-When coming back at a later time you'll only need to activate virtual environment again
-```shell
-# On Windows
-cd AutoEq
-venv\Scripts\activate.bat
-# On Linux and Mac
-cd AutoEq
-. venv/bin/activate
-```
+Without mise shell activation, prefix commands with `uv run`, e.g. `uv run python -m autoeq --help`.
 
-To learn more about virtual environments, read [Python' venv documentation](https://docs.python.org/3.9/library/venv.html).
+List the available project tasks (tests, webapp, database tools, building) with
+```shell
+mise tasks
+```
 
 #### Updating
 AutoEq is in active development and gets new measurements, results and features all the time. You can get the latest
@@ -113,9 +96,10 @@ version from git
 git pull
 ```
 
-Dependencies may change from time to time, you can update to the latest with
+Dependencies may change from time to time, you can update to the locked versions with
 ```shell
-python -m pip install -U -e .
+mise install
+uv sync
 ```
 
 #### Checking Installation
@@ -133,26 +117,16 @@ python -m autoeq --input-file="measurements/oratory1990/data/over-ear/Sennheiser
 ### Building
 Add changelog entry before building and update version number in pyproject.toml!
 
-Install `build` and `twine`
-```shell
-python -m pip install build twine
-```
-
 Add updates to `autoeq/README.md` before building!
 
-Build PyPi package on Windows
+Build PyPi package. This temporarily swaps `README.md` for `autoeq/README.md` while building.
 ```shell
-copy /y README.md README.md.bak && copy /y autoeq\README.md README.md && python -m build && copy /y README.md.bak README.md && del README.md.bak
-```
-
-Build PyPi package on Linux / MacOS
-```shell
-cp README.md README.md.bak && cp autoeq/README.md README.md && python -m build && cp README.md.bak README.md && rm README.md.bak
+mise run build
 ```
 
 publish
 ```shell
-python -m twine upload dist/autoeq-<VERSION>*
+uv publish dist/autoeq-<VERSION>*
 ```
 
 Remember to add Git tag!

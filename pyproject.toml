@@ -33,6 +33,31 @@ dependencies = [
 "Homepage" = "https://github.com/jaakkopasanen/AutoEq"
 "Bug Tracker" = "https://github.com/jaakkopasanen/AutoEq/issues"
 
+[dependency-groups]
+webapp = [
+    "fastapi~=0.88.0",
+    "uvicorn[standard]~=0.20.0",
+]
+dbtools = [
+    "requests~=2.31.0",
+    "pandas~=2.1.1",
+    "PyPDF2~=3.0.1",
+    "ghostscript~=0.7",
+    "beautifulsoup4~=4.12.2",
+    "selenium~=4.14.0",
+    "rapidfuzz~=3.4.0",
+    "icrawler~=0.6.7",
+    "ipywidgets~=8.1.1",
+    "jupyterlab~=4.0.7",
+]
+
+[tool.uv]
+# `uv sync` installs every group by default; use `--no-default-groups --group <name>` for a subset
+default-groups = "all"
+# Only lock for the Python versions used for development (see mise.toml). The published package's
+# `requires-python` stays wider, but some dev tool pins (e.g. pandas 2.1) don't support Python 3.8.
+environments = ["python_version >= '3.11'"]
+
 [tool.hatch.build]
 include = [
     "/autoeq",
