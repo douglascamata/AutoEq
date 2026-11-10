@@ -6,7 +6,7 @@ import json
 from urllib.parse import quote
 import re
 import numpy as np
-from zipfile import ZipFile
+from zipfile import ZipFile, ZipInfo, ZIP_STORED
 from tabulate import tabulate
 from tqdm.auto import tqdm
 from autoeq.frequency_response import FrequencyResponse
@@ -261,21 +261,31 @@ def write_source_indexes(paths):
 
 
 def write_hesuvi_zip(paths):
+    """Writes GraphicEQ settings of all headphones into a ZIP file for HeSuVi
+
+    The ZIP file is deterministic: entries are sorted and have a fixed timestamp, so that the file only changes when
+    the equalizer settings change. Entries are stored uncompressed so that git can delta compress the versions.
+    """
     print('Creating HeSuVi ZIP archive...')
     manufacturers = ManufacturerIndex()
-    zip_object = ZipFile(RESULTS_PATH.joinpath('hesuvi.zip'), 'w')
-    zip_files = set()
 
+    # Sort paths so that results with equal priority are picked the same way regardless of the file system order
+    paths = sorted(paths, key=lambda path: str(path.absolute_path))
     grouped_by_name = group_by(paths, 'name')
     grouped_by_name = sort_each_group_by(grouped_by_name, 'priority')
 
-    for name, group_paths in tqdm(grouped_by_name.items()):
+    entries = {}  # archive path: (headphone name, GraphicEQ string)
+    for name, group_paths in tqdm(sorted(grouped_by_name.items())):
         manufacturer, _ = manufacturers.find(name)
         if manufacturer is None:
             print(f'Manufacturer could not be found for {name}. Will skip in hesuvi.zip.')
             continue
         model = manufacturers.model(name)
         archive_path = f'eq/{manufacturer}/{model}.txt'
+        if archive_path in entries:
+            print(f'"{name}" and "{entries[archive_path][0]}" both map to "{archive_path}". '
+                  f'Will skip "{name}" in hesuvi.zip.')
+            continue
 
         file_path = next(group_paths[0].absolute_path.glob('* GraphicEQ.txt'))
         with open(file_path, 'r', encoding='utf-8') as fh:
@@ -286,9 +296,15 @@ def write_hesuvi_zip(paths):
             data[:, 1] -= np.mean(data[sl, 1])
             s = 'GraphicEQ: '
             s += '; '.join([f'{x[0]:.0f} {x[1]:.1f}' for x in data])
-            zip_object.writestr(archive_path, s)
-            zip_files.add(archive_path)
-    zip_object.close()
+            entries[archive_path] = (name, s)
+
+    with ZipFile(RESULTS_PATH.joinpath('hesuvi.zip'), 'w', compression=ZIP_STORED) as zip_object:
+        for archive_path in sorted(entries.keys()):
+            # Fixed metadata instead of the current time and platform
+            info = ZipInfo(archive_path, date_time=(1980, 1, 1, 0, 0, 0))
+            info.create_system = 3
+            info.external_attr = 0o644 << 16
+            zip_object.writestr(info, entries[archive_path][1])
 
 
 def write_ranking_table(paths):
