@@ -15,12 +15,12 @@ target_to_source = {
     'crinacle/GRAS 43AG-7 over-ear': MEASUREMENTS_PATH.joinpath('crinacle', 'data', 'over-ear', 'GRAS 43AG-7'),
     'HypetheSonics/Bruel & Kjaer 5128 in-ear': MEASUREMENTS_PATH.joinpath('HypetheSonics', 'data', 'in-ear', 'Bruel & Kjaer 5128'),
     'HypetheSonics/GRAS RA0045 in-ear': MEASUREMENTS_PATH.joinpath('HypetheSonics', 'data', 'in-ear', 'GRAS RA0045'),
-    'rtings/Bruel & Kjaer 5128 earbud': MEASUREMENTS_PATH.joinpath('rtings', 'data', 'earbud', 'Bruel & Kjaer 5128'),
-    'rtings/Bruel & Kjaer 5128 in-ear': MEASUREMENTS_PATH.joinpath('rtings', 'data', 'in-ear', 'Bruel & Kjaer 5128'),
-    'rtings/Bruel & Kjaer 5128 over-ear': MEASUREMENTS_PATH.joinpath('rtings', 'data', 'over-ear', 'Bruel & Kjaer 5128'),
-    'rtings/HMS II.3 earbud': MEASUREMENTS_PATH.joinpath('rtings', 'data', 'earbud', 'HMS II.3'),
-    'rtings/HMS II.3 in-ear': MEASUREMENTS_PATH.joinpath('rtings', 'data', 'in-ear', 'HMS II.3'),
-    'rtings/HMS II.3 over-ear': MEASUREMENTS_PATH.joinpath('rtings', 'data', 'over-ear', 'HMS II.3'),
+    'Rtings/Bruel & Kjaer 5128 earbud': MEASUREMENTS_PATH.joinpath('Rtings', 'data', 'earbud', 'Bruel & Kjaer 5128'),
+    'Rtings/Bruel & Kjaer 5128 in-ear': MEASUREMENTS_PATH.joinpath('Rtings', 'data', 'in-ear', 'Bruel & Kjaer 5128'),
+    'Rtings/Bruel & Kjaer 5128 over-ear': MEASUREMENTS_PATH.joinpath('Rtings', 'data', 'over-ear', 'Bruel & Kjaer 5128'),
+    'Rtings/HMS II.3 earbud': MEASUREMENTS_PATH.joinpath('Rtings', 'data', 'earbud', 'HMS II.3'),
+    'Rtings/HMS II.3 in-ear': MEASUREMENTS_PATH.joinpath('Rtings', 'data', 'in-ear', 'HMS II.3'),
+    'Rtings/HMS II.3 over-ear': MEASUREMENTS_PATH.joinpath('Rtings', 'data', 'over-ear', 'HMS II.3'),
 }
 
 

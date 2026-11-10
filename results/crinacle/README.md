@@ -1418,7 +1418,7 @@
 - [Samsung Galaxy Buds2 Pro](./711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro) on 711
 - [Samsung Galaxy Buds2 Pro (Ambient mode)](./711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(Ambient%20mode)) on 711
 - [Samsung Galaxy Buds2 Pro (ANC mode)](./711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(ANC%20mode)) on 711
-- [Samsung Galaxy Buds2 Pro (passive mode)](./711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(passive%20mode)) on 711
+- [Samsung Galaxy Buds2 Pro (Passive mode)](./711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(Passive%20mode)) on 711
 - [Sansui SS10](./GRAS%2043AG-7%20over-ear/Sansui%20SS10) on GRAS 43AG-7
 - [SATOLEX Tubomi DH298-A1Bk](./711%20in-ear/SATOLEX%20Tubomi%20DH298-A1Bk) on 711
 - [SATOLEX Tubomi DH302-A1Bs](./711%20in-ear/SATOLEX%20Tubomi%20DH302-A1Bs) on 711

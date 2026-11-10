@@ -6,7 +6,7 @@ headphones, these can be found in the
 Where there are measurements from multiple sources for the same headphone, only the one with the highest accuracy
 appears on this list.
 
-This list has 6033 headphone models covered, but if your headphone is missing, you can create settings for
+This list has 6034 headphone models covered, but if your headphone is missing, you can create settings for
 it yourself by following this guide:
 [Equalizing Headphones the Easy Way](https://medium.com/@jaakkopasanen/make-your-headphones-sound-supreme-1cbd567832a9)
 
@@ -433,6 +433,7 @@ Headphone ranking based on Harman listener preference scores can be found in the
 - [Apple AirPods Pro 2 (ANC mode)](./crinacle/711%20in-ear/Apple%20AirPods%20Pro%202%20(ANC%20mode))
 - [Apple AirPods Pro 2 (passive mode)](./crinacle/711%20in-ear/Apple%20AirPods%20Pro%202%20(passive%20mode))
 - [Apple AirPods Pro 2 (transparency mode)](./crinacle/711%20in-ear/Apple%20AirPods%20Pro%202%20(transparency%20mode))
+- [Apple AirPods Pro 3](./Rtings/Bruel%20&%20Kjaer%205128%20in-ear/Apple%20AirPods%20Pro%203)
 - [Apple AirPods Pro2](./Rtings/Bruel%20&%20Kjaer%205128%20in-ear/Apple%20AirPods%20Pro2)
 - [Apple EarPods](./Super%20Review/earbud/Apple%20EarPods)
 - [Apple In-Ear (2013)](./Innerfidelity/in-ear/Apple%20In-Ear%20(2013))
@@ -4201,7 +4202,7 @@ Headphone ranking based on Harman listener preference scores can be found in the
 - [Samsung Galaxy Buds2 Pro](./oratory1990/in-ear/Samsung%20Galaxy%20Buds2%20Pro)
 - [Samsung Galaxy Buds2 Pro (Ambient mode)](./crinacle/711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(Ambient%20mode))
 - [Samsung Galaxy Buds2 Pro (ANC mode)](./crinacle/711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(ANC%20mode))
-- [Samsung Galaxy Buds2 Pro (passive mode)](./crinacle/711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(passive%20mode))
+- [Samsung Galaxy Buds2 Pro (Passive mode)](./crinacle/711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(Passive%20mode))
 - [Samsung Galaxy Buds3](./Rtings/Bruel%20&%20Kjaer%205128%20in-ear/Samsung%20Galaxy%20Buds3)
 - [Samsung Galaxy Buds3 Pro](./DHRME/in-ear/Samsung%20Galaxy%20Buds3%20Pro)
 - [Samsung Gear IconX](./Rtings/HMS%20II.3%20over-ear/Samsung%20Gear%20IconX)

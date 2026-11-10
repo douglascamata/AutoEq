@@ -61,6 +61,7 @@
 - [Apple AirPods 4 (ANC on)](./Bruel%20&%20Kjaer%205128%20earbud/Apple%20AirPods%204%20(ANC%20on)) on Bruel & Kjaer 5128
 - [Apple AirPods Max](./Bruel%20&%20Kjaer%205128%20over-ear/Apple%20AirPods%20Max) on Bruel & Kjaer 5128
 - [Apple AirPods Pro](./HMS%20II.3%20in-ear/Apple%20AirPods%20Pro) on HMS II.3
+- [Apple AirPods Pro 3](./Bruel%20&%20Kjaer%205128%20in-ear/Apple%20AirPods%20Pro%203) on Bruel & Kjaer 5128
 - [Apple AirPods Pro2](./Bruel%20&%20Kjaer%205128%20in-ear/Apple%20AirPods%20Pro2) on Bruel & Kjaer 5128
 - [Apple EarPods](./HMS%20II.3%20earbud/Apple%20EarPods) on HMS II.3
 - [ASTRO Gaming A10](./HMS%20II.3%20over-ear/ASTRO%20Gaming%20A10) on HMS II.3

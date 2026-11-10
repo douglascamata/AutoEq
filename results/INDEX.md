@@ -635,6 +635,7 @@ from the same source.
 - [Apple AirPods Pro 2 (ANC mode)](./crinacle/711%20in-ear/Apple%20AirPods%20Pro%202%20(ANC%20mode)) by crinacle on 711
 - [Apple AirPods Pro 2 (passive mode)](./crinacle/711%20in-ear/Apple%20AirPods%20Pro%202%20(passive%20mode)) by crinacle on 711
 - [Apple AirPods Pro 2 (transparency mode)](./crinacle/711%20in-ear/Apple%20AirPods%20Pro%202%20(transparency%20mode)) by crinacle on 711
+- [Apple AirPods Pro 3](./Rtings/Bruel%20&%20Kjaer%205128%20in-ear/Apple%20AirPods%20Pro%203) by Rtings on Bruel & Kjaer 5128
 - [Apple AirPods Pro2](./Rtings/Bruel%20&%20Kjaer%205128%20in-ear/Apple%20AirPods%20Pro2) by Rtings on Bruel & Kjaer 5128
 - [Apple EarPods](./Super%20Review/earbud/Apple%20EarPods) by Super Review
 - [Apple EarPods](./Innerfidelity/earbud/Apple%20EarPods) by Innerfidelity
@@ -6019,7 +6020,7 @@ from the same source.
 - [Samsung Galaxy Buds2 Pro](./Rtings/Bruel%20&%20Kjaer%205128%20in-ear/Samsung%20Galaxy%20Buds2%20Pro) by Rtings on Bruel & Kjaer 5128
 - [Samsung Galaxy Buds2 Pro (Ambient mode)](./crinacle/711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(Ambient%20mode)) by crinacle on 711
 - [Samsung Galaxy Buds2 Pro (ANC mode)](./crinacle/711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(ANC%20mode)) by crinacle on 711
-- [Samsung Galaxy Buds2 Pro (passive mode)](./crinacle/711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(passive%20mode)) by crinacle on 711
+- [Samsung Galaxy Buds2 Pro (Passive mode)](./crinacle/711%20in-ear/Samsung%20Galaxy%20Buds2%20Pro%20(Passive%20mode)) by crinacle on 711
 - [Samsung Galaxy Buds3](./Rtings/Bruel%20&%20Kjaer%205128%20in-ear/Samsung%20Galaxy%20Buds3) by Rtings on Bruel & Kjaer 5128
 - [Samsung Galaxy Buds3 Pro](./DHRME/in-ear/Samsung%20Galaxy%20Buds3%20Pro) by DHRME
 - [Samsung Galaxy Buds3 Pro](./Rtings/Bruel%20&%20Kjaer%205128%20in-ear/Samsung%20Galaxy%20Buds3%20Pro) by Rtings on Bruel & Kjaer 5128

@@ -51,10 +51,15 @@ class RtingsCrawler(Crawler):
             if ground_truth.rig is not None and item.rig is None:
                 item.rig = ground_truth.rig
 
+    # Test bench (methodology) versions to crawl, newest first. Versions since 1.8 use the Bruel & Kjaer 5128 rig. As of
+    # November 2026, the 2.0-2.2 graph tool pages list the same products as 1.8 and newer products are only on 2.3.
+    # Add new versions here when Rtings publishes them (https://www.rtings.com/headphones/<version>/graph).
+    TEST_METHODOLOGY_VERSIONS = ['2-3', '2-2', '2-1', '2-0', '1-8', '1-7', '1-6', '1-5', '1-4', '1-2']
+
     @staticmethod
     def graph_data_test_configs():
         test_configs = {}
-        for version in ['1-8', '1-7', '1-6', '1-5', '1-4', '1-2']:
+        for version in RtingsCrawler.TEST_METHODOLOGY_VERSIONS:
             html = requests.get(f'https://www.rtings.com/headphones/{version}/graph').text
             document = BeautifulSoup(html, 'html.parser')
             test_bench = json.loads(document.find(class_='app-body').find('div').get('data-props'))['test_bench']
@@ -116,10 +121,12 @@ class RtingsCrawler(Crawler):
             data = res.json()
             try:
                 path = data['data']['product']['review']['test_results'][0]['graph_data_url']
-                return f'https://i.rtings.com{path}'
             except:
                 print(f'Graph data URL for {payload} returned an unexpected data format: {data}')
                 return None
+            if not path:  # Product has the test but no published graph data
+                return None
+            return f'https://i.rtings.com{path}'
         if url is not None:
             cache[cache_key] = url
         return url
@@ -160,10 +167,51 @@ class RtingsCrawler(Crawler):
                 self.resolve(item)
                 self.crawl_index.add(item)
 
+        refreshed = self.refresh_changed_urls()
+        if refreshed:
+            print(f'Graph data URLs changed for {len(refreshed)} measurements, they will be re-downloaded by process()')
+
         with open(self.measurements_path.joinpath('crawl_graph_data_urls.json'), 'w', encoding='utf-8') as fh:
             json.dump(graph_data_url_cache, fh, ensure_ascii=False, indent=4)
         self.write_name_index()
         return self.crawl_index
+
+    def refresh_changed_urls(self, delete_measurements=True):
+        """Replaces name index items with the crawled ones when Rtings serves the graph data from new URLs.
+
+        Rtings re-publishes graph data under new URLs, for example when a product is re-tested. Crawled items are
+        resolved by source name, so without this the name index would keep pointing to the old data. Only products for
+        which none of the URLs in the name index are served anymore are refreshed. Products where some URLs are still
+        the same (e.g. a channel which wasn't included before) are left as they are.
+
+        Args:
+            delete_measurements: Delete the measurement files of the refreshed items so that process() re-creates them
+
+        Returns:
+            List of target file paths of the refreshed measurements
+        """
+        groups = {}
+        for item in self.crawl_index.items:
+            if item.url is None or item.is_ignored or item.name is None or item.form is None:
+                continue
+            groups.setdefault((item.source_name, item.rig), []).append(item)
+        refreshed = []
+        for (source_name, rig), items in groups.items():
+            old = self.name_index.find(source_name=source_name, rig=rig)
+            if not old:
+                continue  # Not in the name index yet, needs to be prompted
+            crawled_urls = {item.url for item in items}
+            if any(item.url in crawled_urls for item in old.items):
+                continue  # At least some of the data is still served from the same URLs
+            for item in old.items:
+                self.name_index.remove(item)
+            for item in items:
+                self.name_index.add(item.copy())
+            file_path = self.target_path(items[0])
+            if delete_measurements and file_path is not None and file_path.exists():
+                file_path.unlink()
+            refreshed.append(file_path)
+        return refreshed
 
     def json_path(self, item):
         uid = item.url.split('/')[-2]
